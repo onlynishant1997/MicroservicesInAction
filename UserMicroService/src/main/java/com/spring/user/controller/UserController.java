@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,9 @@ import com.spring.user.service.UserService;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
 
 	@Autowired
 	private UserService userService;
@@ -30,6 +35,7 @@ public class UserController {
 	@GetMapping("/{username}")
 	@ResponseBody
 	public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+		logger.info("Get User By Username Endpoint : " + username);
 		Optional<User> optionalUser = userService.getUserByUsername(username);
 		if (!optionalUser.isPresent())
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -38,11 +44,13 @@ public class UserController {
 
 	@GetMapping("/")
 	public ResponseEntity<List<User>> getAllUsers() {
+		logger.info("Get All Users Endpoint");
 		return ResponseEntity.ok(userService.getAllUsers());
 	}
 
 	@PostMapping("/")
 	public ResponseEntity<User> createUserIfNotExist(@Valid @RequestBody User user) {
+		logger.info("Save User Endpoint : " + user);
 		boolean userSaved = userService.saveUserIfDoesNotExist(user);
 		if (!userSaved) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
@@ -52,6 +60,7 @@ public class UserController {
 
 	@DeleteMapping("/{username}")
 	public ResponseEntity<User> deleteUser(@PathVariable String username) {
+		logger.info("Delete User By Username Endpoint : " + username);
 		boolean userDeleted = userService.deleteUserByUsername(username);
 		if (!userDeleted)
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

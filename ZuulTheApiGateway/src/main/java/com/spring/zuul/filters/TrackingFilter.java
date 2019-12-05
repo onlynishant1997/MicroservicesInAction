@@ -13,7 +13,7 @@ import com.netflix.zuul.exception.ZuulException;
 public class TrackingFilter extends ZuulFilter {
 	private static final int FILTER_ORDER = 1;
 	private static final boolean SHOULD_FILTER = true;
-	private static final Logger logger = LoggerFactory.getLogger(ZuulFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(TrackingFilter.class);
 
 	@Autowired
 	private FilterUtils filterUtils;

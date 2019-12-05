@@ -41,7 +41,8 @@ public class BookService {
 					@HystrixProperty(name = "coreSize", value = "30"),
 					@HystrixProperty(name = "maxQueueSize", value = "10") })
 	public List<Book> getAllBooks() {
-		logger.info("BookService.getAllBooks CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.debug("BookService.getAllBooks CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.info("Inside BookService.GetAllBooks");
 		try {
 			Thread.sleep(1000); // Increase the timeout if you want to call the hystrix fallback method.
 		} catch (InterruptedException e) {
@@ -59,39 +60,47 @@ public class BookService {
 					@HystrixProperty(name = "coreSize", value = "30"),
 					@HystrixProperty(name = "maxQueueSize", value = "10") })
 	public Optional<Book> getBookById(int id) {
-		logger.info("BookService.getBookById CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.debug("BookService.getBookById CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.info("Inside BookService.GetBookById");
 		Optional<Book> optionalBook = bookRepository.findById(id);
 		return optionalBook;
 	}
 
 	public void saveBook(Book book) {
-		logger.info("BookService.saveBook CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.debug("BookService.saveBook CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.info("Inside BookService.saveBook");
 		Optional<Book> optionalBook = bookRepository.findByName(book.getName());
 		if (optionalBook.isPresent()) {
+			logger.info("Updating already existed book");
 			Book bookRef = bookRepository.getOne(optionalBook.get().getId());
 			bookRef.setQuantity(book.getQuantity());
 			bookRef.setAuthor(book.getAuthor());
 			bookRef.setPrice(book.getPrice());
 			bookRepository.save(bookRef);
 		} else {
+			logger.info("Saving new Book");
 			bookRepository.save(book);
 		}
 	}
 
 	public boolean deleteBook(int id) {
-		logger.info("BookService.deleteBook CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.debug("BookService.deleteBook CorrelationId : {}", UserContextHolder.getContext().getCorrelationId());
+		logger.info("Inside BookService.deleteBookById");
 		boolean bookDeleted = false;
 		Optional<Book> optionalBook = bookRepository.findById(id);
 		if (optionalBook.isPresent()) {
+			logger.info("Book Found");
 			bookRepository.deleteById(id);
 			bookDeleted = true;
 		} else {
+			logger.info("Book Doesnot exist hence cannot be deleted");
 			bookDeleted = false;
 		}
 		return bookDeleted;
 	}
 
 	private List<Book> fallBackMethod() {
+		logger.warn("Fallback Method called when fetching list of books");
 		List<Book> list = new ArrayList<Book>();
 		Book book = new Book();
 		book.setName("Fallback method called");
@@ -101,6 +110,7 @@ public class BookService {
 	}
 
 	private Optional<Book> fallBackMethod(int id) {
+		logger.warn("Fallback Method called when fetching book by id");
 		Book book = new Book();
 		book.setName("Fallback method called");
 		book.setAuthor("Hystrix Fallback");
